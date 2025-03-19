@@ -1,3 +1,6 @@
+package me.rogerioferreira.bancodigital.conta;
+
+import me.rogerioferreira.bancodigital.cliente.Cliente;
 
 public class ContaCorrente extends Conta {
 
@@ -10,5 +13,5 @@ public class ContaCorrente extends Conta {
 		System.out.println("=== Extrato Conta Corrente ===");
 		super.imprimirInfosComuns();
 	}
-	
+
 }

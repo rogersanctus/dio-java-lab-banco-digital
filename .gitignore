@@ -1,0 +1,9 @@
+# Arquivos do gradle
+.gradle/
+bin/
+build/
+
+# eclipse JDT - para LSP (auto gerados)
+.settings/
+.classpath
+.project

@@ -1,0 +1,26 @@
+plugins {
+  id 'java'
+  id 'application'
+  id 'eclipse'
+}
+
+group = 'me.rogerioferreira.bancodigital'
+version = '0.0.1'
+
+repositories {
+  mavenCentral()
+}
+
+dependencies {}
+
+application {
+  mainClass = 'me.rogerioferreira.bancodigital.Aplicacao'
+}
+
+tasks.withType(JavaCompile) {
+  options.encoding = 'UTF-8'
+}
+
+run {
+  standardInput = System.in
+}
