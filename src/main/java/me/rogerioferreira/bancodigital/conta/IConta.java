@@ -9,6 +9,8 @@ public interface IConta {
 
 	void transferir(double valor, IConta contaDestino);
 
+	double getSaldo();
+
 	void imprimirExtrato();
 
 	String getSequencialConta();

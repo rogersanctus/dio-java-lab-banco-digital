@@ -9,8 +9,8 @@ import me.rogerioferreira.bancodigital.cliente.Cliente;
 
 public abstract class Conta implements IConta {
 
-	protected Cliente cliente;
 	protected Banco banco;
+	protected Cliente cliente;
 	private static final int AGENCIA_PADRAO = 1;
 	private static int SEQUENCIAL = 1;
 
@@ -64,6 +64,7 @@ public abstract class Conta implements IConta {
 		return agencia;
 	}
 
+	@Override
 	public double getSaldo() {
 		return this.banco.getSaldoConta(this);
 	}

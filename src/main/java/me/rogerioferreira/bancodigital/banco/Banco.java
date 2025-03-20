@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 
 import me.rogerioferreira.bancodigital.conta.IConta;
@@ -18,12 +17,12 @@ public class Banco {
 	private Map<String, Integer> sequencialTransacaoConta = new HashMap<>();
 	private Map<ChaveTransacao, ITransacao> transacoes = new TreeMap<>();
 
-	public String getNome() {
-		return nome;
+	public Banco(String nome) {
+		this.nome = nome;
 	}
 
-	public void setNome(String nome) {
-		this.nome = nome;
+	public String getNome() {
+		return nome;
 	}
 
 	public List<IConta> getContas() {
