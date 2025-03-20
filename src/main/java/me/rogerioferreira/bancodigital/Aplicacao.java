@@ -2,9 +2,7 @@ package me.rogerioferreira.bancodigital;
 
 import me.rogerioferreira.bancodigital.banco.Banco;
 import me.rogerioferreira.bancodigital.cliente.Cliente;
-import me.rogerioferreira.bancodigital.conta.Conta;
-import me.rogerioferreira.bancodigital.conta.ContaCorrente;
-import me.rogerioferreira.bancodigital.conta.ContaPoupanca;
+import me.rogerioferreira.bancodigital.conta.TipoConta;
 
 public class Aplicacao {
 	public static void main(String[] args) {
@@ -12,10 +10,10 @@ public class Aplicacao {
 		Cliente maria = new Cliente("Maria");
 
 		Banco banco = new Banco("Banco Binário");
-		Conta ccj = new ContaCorrente(banco, joao, 500.00);
-		Conta cpj = new ContaPoupanca(banco, joao);
+		var ccj = banco.abrirConta(TipoConta.CORRENTE, joao, 500.00);
+		var cpj = banco.abrirConta(TipoConta.POUPANCA, joao);
 
-		Conta ccm = new ContaCorrente(banco, maria, 1000.00);
+		var ccm = banco.abrirConta(TipoConta.CORRENTE, maria, 1000.00);
 
 		cpj.abrirConta(0.0);
 		cpj.depositar(250.00); // cpj 250.00

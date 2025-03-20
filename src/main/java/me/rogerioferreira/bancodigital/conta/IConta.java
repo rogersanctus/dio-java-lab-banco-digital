@@ -14,4 +14,6 @@ public interface IConta {
 	void imprimirExtrato();
 
 	String getSequencialConta();
+
+	int getAgencia();
 }

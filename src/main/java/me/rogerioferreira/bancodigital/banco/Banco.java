@@ -7,7 +7,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import me.rogerioferreira.bancodigital.cliente.Cliente;
 import me.rogerioferreira.bancodigital.conta.IConta;
+import me.rogerioferreira.bancodigital.conta.TipoConta;
 import me.rogerioferreira.bancodigital.excecoes.TransacaoException;
 
 public class Banco {
@@ -42,6 +44,27 @@ public class Banco {
 
 	public List<IConta> getContas() {
 		return contas;
+	}
+
+	public IConta abrirConta(TipoConta tipoConta, Cliente cliente) {
+		return this.abrirConta(tipoConta, cliente, null);
+	}
+
+	public IConta abrirConta(TipoConta tipoConta, Cliente cliente, Double saldoInicial) {
+		var conta = switch (tipoConta) {
+			case TipoConta.POUPANCA ->
+				new ContaPoupanca(this, cliente);
+			case TipoConta.CORRENTE ->
+				new ContaCorrente(this, cliente);
+			default ->
+				new ContaCorrente(this, cliente);
+		};
+
+		if (saldoInicial != null) {
+			conta.abrirConta(saldoInicial);
+		}
+
+		return conta;
 	}
 
 	public void adicionarConta(IConta conta) {

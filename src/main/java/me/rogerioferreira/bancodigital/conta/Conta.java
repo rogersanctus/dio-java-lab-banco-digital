@@ -29,12 +29,6 @@ public abstract class Conta implements IConta {
 		this.banco.adicionarConta(this);
 	}
 
-	public Conta(Banco banco, Cliente cliente, double saldoInicial) {
-		this(banco, cliente);
-
-		this.abrirConta(saldoInicial);
-	}
-
 	@Override
 	public void abrirConta(double saldoInicial) {
 		this.banco.adicionarTransacao(this, new TransacaoAberturaConta(saldoInicial));
@@ -60,6 +54,7 @@ public abstract class Conta implements IConta {
 		return this.sequencialConta;
 	}
 
+	@Override
 	public int getAgencia() {
 		return agencia;
 	}
