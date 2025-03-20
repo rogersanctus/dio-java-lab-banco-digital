@@ -22,6 +22,9 @@ public class Aplicacao {
 		ccj.depositar(250.00); // ccj 750.00
 		ccm.transferir(175.00, ccj); // ccm 925.50 ccj 925.00
 
+		ccj.sacar(125.00); // ccj 800.00
+		ccm.sacar(375.00); // ccm 550.50
+
 		ccj.imprimirExtrato();
 		cpj.imprimirExtrato();
 		ccm.imprimirExtrato();

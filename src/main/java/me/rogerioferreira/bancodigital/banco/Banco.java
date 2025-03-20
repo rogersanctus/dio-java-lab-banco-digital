@@ -218,7 +218,15 @@ public class Banco {
 	public double getSaldoTotal() throws TransacaoException {
 		return this.contas
 				.stream()
-				.mapToDouble(conta -> getSaldoConta(conta))
+				.mapToDouble(conta -> {
+					// Transferências não tiram dinheiro do banco
+					var transacoesSemTransferencias = this.getTransacoesConta(conta)
+							.map(entry -> entry.getValue())
+							.filter(transacao -> !(transacao instanceof TransacaoTransferencia))
+							.toList();
+
+					return this.computarTransacoes(conta, transacoesSemTransferencias);
+				})
 				.sum();
 	}
 
