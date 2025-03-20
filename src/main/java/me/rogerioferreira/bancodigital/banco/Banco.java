@@ -21,6 +21,21 @@ public class Banco {
 		this.nome = nome;
 	}
 
+	private ChaveTransacao gerarChaveTransacao(OffsetDateTime dataHora, String sequencialConta) {
+		// Adicionado sequencial de transação por conta para evitar colisões de dataHora
+		// para operações muito rápidas
+		// que podem ocorrer mesmo fora de ambiente com múltiplas chamadas ocorrendo ao
+		// mesmo tempo.
+		// !! Uma colisão de chave pode representar a perda de uma Transação !!
+
+		var sequencialTransacao = this.sequencialTransacaoConta.get(sequencialConta);
+		var sequencialTransacaoConta = String.format("%s:%s", sequencialTransacao, sequencialConta);
+
+		this.sequencialTransacaoConta.put(sequencialConta, sequencialTransacao + 1);
+
+		return new ChaveTransacao(dataHora, sequencialTransacaoConta);
+	}
+
 	public String getNome() {
 		return nome;
 	}
@@ -37,18 +52,8 @@ public class Banco {
 	public void adicionarTransacao(IConta conta, ITransacao transacao) {
 		var transacoesConta = this.getTransacoesConta(conta);
 		var dataHora = OffsetDateTime.now();
-		var sequencialTransacoes = this.sequencialTransacaoConta.get(conta.getSequencialConta());
 
-		// Adicionado sequencial de transação por conta para evitar colisões de dataHora
-		// para operações muito rápidas
-		// que podem ocorrer mesmo fora de ambiente com múltiplas chamadas ocorrendo ao
-		// mesmo tempo.
-		// !! Uma colisão de chave pode representar a perda de uma Transação !!
-		var sequencialConta = String.format("%s:%s", sequencialTransacoes, conta.getSequencialConta());
-
-		var chave = new ChaveTransacao(dataHora, sequencialConta);
-
-		this.sequencialTransacaoConta.put(conta.getSequencialConta(), sequencialTransacoes + 1);
+		var chave = this.gerarChaveTransacao(dataHora, conta.getSequencialConta());
 
 		ITransacao primeiraTransacao = transacoesConta.size() > 0 ? transacoesConta.get(0) : null;
 
@@ -114,14 +119,7 @@ public class Banco {
 				}
 
 				this.transacoes.put(chave, transferencia);
-
-				var contaParaSequencial = contaPara.getSequencialConta();
-				var sequencialTransacoesPara = this.sequencialTransacaoConta.get(contaParaSequencial);
-				var sequencialPara = String.format("%s:%s", sequencialTransacoesPara, contaParaSequencial);
-
-				this.sequencialTransacaoConta.put(contaParaSequencial, sequencialTransacoesPara + 1);
-
-				this.transacoes.put(new ChaveTransacao(dataHora, sequencialPara),
+				this.transacoes.put(this.gerarChaveTransacao(dataHora, contaPara.getSequencialConta()),
 						new TransacaoTransferencia(transferencia.de(), contaPara, transferencia.valor()));
 			}
 			default -> {
