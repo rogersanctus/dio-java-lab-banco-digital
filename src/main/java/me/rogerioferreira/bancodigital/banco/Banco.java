@@ -91,6 +91,8 @@ public class Banco {
 				this.transacoes.put(chave, saque);
 			}
 			case TransacaoTransferencia transferencia -> {
+				var contaPara = transferencia.para();
+
 				if (transferencia.valor() <= 0) {
 					throw new TransacaoException("Valor de transferencia inválido");
 				}
@@ -101,7 +103,7 @@ public class Banco {
 
 				boolean contaDestinoExiste = this.contas
 						.stream()
-						.anyMatch(contaBanco -> contaBanco.getSequencialConta().equals(transferencia.para().getSequencialConta()));
+						.anyMatch(contaBanco -> contaBanco.getSequencialConta().equals(contaPara.getSequencialConta()));
 
 				if (!contaDestinoExiste) {
 					throw new TransacaoException("Conta de destino inexistente");
@@ -113,7 +115,6 @@ public class Banco {
 
 				this.transacoes.put(chave, transferencia);
 
-				var contaPara = transferencia.para();
 				var contaParaSequencial = contaPara.getSequencialConta();
 				var sequencialTransacoesPara = this.sequencialTransacaoConta.get(contaParaSequencial);
 				var sequencialPara = String.format("%s:%s", sequencialTransacoesPara, contaParaSequencial);
