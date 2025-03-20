@@ -60,6 +60,8 @@ public class Banco {
 				new ContaCorrente(this, cliente);
 		};
 
+		this.adicionarConta(conta);
+
 		if (saldoInicial != null) {
 			conta.abrirConta(saldoInicial);
 		}
@@ -67,7 +69,7 @@ public class Banco {
 		return conta;
 	}
 
-	public void adicionarConta(IConta conta) {
+	private void adicionarConta(IConta conta) {
 		this.sequencialTransacaoConta.put(conta.getSequencialConta(), 0);
 		this.contas.add(conta);
 	}

@@ -25,8 +25,6 @@ public abstract class Conta implements IConta {
 		this.agencia = Conta.AGENCIA_PADRAO;
 		this.cliente = cliente;
 		this.sequencialConta = String.valueOf(numero);
-
-		this.banco.adicionarConta(this);
 	}
 
 	@Override
