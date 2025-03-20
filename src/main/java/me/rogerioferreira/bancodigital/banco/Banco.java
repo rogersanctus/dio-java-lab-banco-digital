@@ -78,19 +78,21 @@ public class Banco {
 	}
 
 	public void adicionarTransacao(IConta conta, ITransacao transacao) {
-		var transacoesConta = this.getTransacoesConta(conta)
+		var listaTransacoesConta = this.getTransacoesConta(conta)
 				.map(entry -> entry.getValue())
 				.toList();
 
 		var dataHora = OffsetDateTime.now();
-
 		var chave = this.gerarChaveTransacao(dataHora, conta.getSequencialConta());
 
-		ITransacao primeiraTransacao = transacoesConta.size() > 0 ? transacoesConta.get(0) : null;
+		ITransacao primeiraTransacao = listaTransacoesConta.size() > 0 ? listaTransacoesConta.get(0) : null;
+
+		var transacoesContaStream = listaTransacoesConta.stream();
 
 		switch (transacao) {
 			case TransacaoAberturaConta abertura -> {
-				if (transacoesConta.size() > 0) {
+
+				if (listaTransacoesConta.size() > 0) {
 					throw new TransacaoException("A abertura de conta deve ser a primeira transação");
 				}
 
@@ -120,7 +122,7 @@ public class Banco {
 					throw new TransacaoException("Não houve abertura de conta");
 				}
 
-				if (computarTransacoes(conta, transacoesConta) < saque.valor()) {
+				if (computarTransacoes(conta, transacoesContaStream) < saque.valor()) {
 					throw new TransacaoException("Saldo insuficiente");
 				}
 
@@ -145,7 +147,7 @@ public class Banco {
 					throw new TransacaoException("Conta de destino inexistente");
 				}
 
-				if (computarTransacoes(conta, transacoesConta) < transferencia.valor()) {
+				if (computarTransacoes(conta, transacoesContaStream) < transferencia.valor()) {
 					throw new TransacaoException("Saldo insuficiente");
 				}
 
@@ -170,47 +172,42 @@ public class Banco {
 				});
 	}
 
-	private double computarTransacoes(IConta conta, List<ITransacao> transacoes) throws TransacaoException {
-		ITransacao primeiraTransacao = transacoes.size() > 0 ? transacoes.get(0) : null;
+	private double computarTransacoes(IConta conta, Stream<ITransacao> transacoesStream) throws TransacaoException {
+		return transacoesStream
+				.mapToDouble(transacao -> {
+					double saldo = 0;
 
-		if (!(primeiraTransacao instanceof TransacaoAberturaConta)) {
-			throw new TransacaoException("Transações inválidas. Não houve abertura de conta");
-		}
-
-		double saldo = 0;
-
-		for (var transacao : transacoes) {
-			switch (transacao) {
-				case TransacaoAberturaConta aberturaConta -> {
-					saldo = aberturaConta.valorAbertura();
-				}
-				case TransacaoDeposito deposito -> {
-					saldo += deposito.valor();
-				}
-				case TransacaoSaque saque -> {
-					saldo -= saque.valor();
-				}
-				case TransacaoTransferencia transferencia -> {
-					// Transferindo desta para outra conta
-					if (transferencia.de().equals(conta)) {
-						saldo -= transferencia.valor();
-					} else if (transferencia.para().equals(conta)) {
-						// Recebendo transferência
-						saldo += transferencia.valor();
+					switch (transacao) {
+						case TransacaoAberturaConta aberturaConta -> {
+							saldo = aberturaConta.valorAbertura();
+						}
+						case TransacaoDeposito deposito -> {
+							saldo += deposito.valor();
+						}
+						case TransacaoSaque saque -> {
+							saldo -= saque.valor();
+						}
+						case TransacaoTransferencia transferencia -> {
+							// Transferindo desta para outra conta
+							if (transferencia.de().equals(conta)) {
+								saldo -= transferencia.valor();
+							} else if (transferencia.para().equals(conta)) {
+								// Recebendo transferência
+								saldo += transferencia.valor();
+							}
+						}
+						default -> {
+						}
 					}
-				}
-				default -> {
-				}
-			}
-		}
 
-		return saldo;
+					return saldo;
+				})
+				.sum();
 	}
 
 	public double getSaldoConta(IConta conta) throws TransacaoException {
 		var transacoes = this.getTransacoesConta(conta)
-				.map(entry -> entry.getValue())
-				.toList();
+				.map(entry -> entry.getValue());
 
 		return computarTransacoes(conta, transacoes);
 	}
@@ -220,12 +217,11 @@ public class Banco {
 				.stream()
 				.mapToDouble(conta -> {
 					// Transferências não tiram dinheiro do banco
-					var transacoesSemTransferencias = this.getTransacoesConta(conta)
+					var transacoesSemTransferenciasStream = this.getTransacoesConta(conta)
 							.map(entry -> entry.getValue())
-							.filter(transacao -> !(transacao instanceof TransacaoTransferencia))
-							.toList();
+							.filter(transacao -> !(transacao instanceof TransacaoTransferencia));
 
-					return this.computarTransacoes(conta, transacoesSemTransferencias);
+					return this.computarTransacoes(conta, transacoesSemTransferenciasStream);
 				})
 				.sum();
 	}
