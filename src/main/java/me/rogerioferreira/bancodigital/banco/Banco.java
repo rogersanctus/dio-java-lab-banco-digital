@@ -39,6 +39,12 @@ public class Banco {
 		var transacoesConta = this.getTransacoesConta(conta);
 		var dataHora = OffsetDateTime.now();
 		var sequencialTransacoes = this.sequencialTransacaoConta.get(conta.getSequencialConta());
+
+		// Adicionado sequencial de transação por conta para evitar colisões de dataHora
+		// para operações muito rápidas
+		// que podem ocorrer mesmo fora de ambiente com múltiplas chamadas ocorrendo ao
+		// mesmo tempo.
+		// !! Uma colisão de chave pode representar a perda de uma Transação !!
 		var sequencialConta = String.format("%s:%s", sequencialTransacoes, conta.getSequencialConta());
 
 		var chave = new ChaveTransacao(dataHora, sequencialConta);
