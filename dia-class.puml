@@ -4,13 +4,15 @@ Diagrama de classes em PlantUML: https://plantuml.com/starting
 '/
 
   interface IConta {
-    double getSaldo()
     void abrirConta(double saldoInicial)
     void sacar(double valor)
     void depositar(double valor)
     void transferir(double valor, IConta contaDestino)
-    void imprimirExtrato()
+    double getSaldo()
+    Cliente getCliente()
     String getSequencialConta()
+    int getAgencia()
+    void imprimirExtrato()
   }
 
   note left of IConta::getSaldo
@@ -39,11 +41,11 @@ Diagrama de classes em PlantUML: https://plantuml.com/starting
   }
 
   class ContaCorrente {
-
+    ~ ContaCorrente(Banco banco, Cliente cliente)
   }
 
   class ContaPoupanca {
-
+    ~ ContaPoupanca(Banco banco, Cliente cliente)
   }
 
   enum TipoConta {
@@ -63,15 +65,18 @@ Diagrama de classes em PlantUML: https://plantuml.com/starting
     - Map<String, Integer> sequencialTransacaoConta
 
     + Banco(String nome)
-    - void abrirConta(TipoConta tipo, Cliente cliente) Conta
-    + double getSaldoConta(Conta conta) double
-    + void adicionarConta(IConta conta)
+    + void abrirConta(TipoConta tipo, Cliente cliente)
+    + void abrirConta(TipoConta tipo, Cliente cliente, double saldoInicial)
     + void adicionarTransacao(IConta conta, ITransacao transacao)
     + String getNome()
     + List<IConta> getContas()
-    - List<ITransacao> getTransacoesConta(IConta conta)
-    - double computarTransacoes(IConta conta, List<ITransacao> transacoes)
+    + double getSaldoConta(IConta conta)
     + double getSaldoTotal()
+    + void imprimirDetalhesExtratoConta(IConta conta)
+    - void adicionarConta(IConta conta)
+    - void gerarChaveTransacao(OffsetDateTime dataHora, String sequencialConta)
+    - Stream<Entry<ChaveTransacao, ITransacao>> getTransacoesConta(IConta conta)
+    - double computarTransacoes(IConta conta, Stream<ITransacao> transacoes)
   }
 
   note left of Banco::abrirConta
