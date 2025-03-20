@@ -11,7 +11,7 @@ public class Aplicacao {
 		Cliente joao = new Cliente("João");
 		Cliente maria = new Cliente("Maria");
 
-		Banco banco = new Banco();
+		Banco banco = new Banco("Banco Binário");
 		Conta ccj = new ContaCorrente(banco, joao, 500.00);
 		Conta cpj = new ContaPoupanca(banco, joao);
 
