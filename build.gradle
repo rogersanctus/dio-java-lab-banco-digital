@@ -17,6 +17,11 @@ application {
   mainClass = 'me.rogerioferreira.bancodigital.Aplicacao'
 }
 
+java {
+  sourceCompatibility = JavaVersion.VERSION_22
+  targetCompatibility = JavaVersion.VERSION_22
+}
+
 tasks.withType(JavaCompile) {
   options.encoding = 'UTF-8'
 }
