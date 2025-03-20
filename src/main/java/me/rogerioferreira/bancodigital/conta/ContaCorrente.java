@@ -1,11 +1,16 @@
 package me.rogerioferreira.bancodigital.conta;
 
+import me.rogerioferreira.bancodigital.banco.Banco;
 import me.rogerioferreira.bancodigital.cliente.Cliente;
 
 public class ContaCorrente extends Conta {
 
-	public ContaCorrente(Cliente cliente) {
-		super(cliente);
+	public ContaCorrente(Banco banco, Cliente cliente) {
+		super(banco, cliente);
+	}
+
+	public ContaCorrente(Banco banco, Cliente cliente, double saldoInicial) {
+		super(banco, cliente, saldoInicial);
 	}
 
 	@Override

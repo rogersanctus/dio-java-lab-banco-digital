@@ -1,23 +1,34 @@
 package me.rogerioferreira.bancodigital;
 
+import me.rogerioferreira.bancodigital.banco.Banco;
 import me.rogerioferreira.bancodigital.cliente.Cliente;
 import me.rogerioferreira.bancodigital.conta.Conta;
 import me.rogerioferreira.bancodigital.conta.ContaCorrente;
 import me.rogerioferreira.bancodigital.conta.ContaPoupanca;
 
 public class Aplicacao {
-
 	public static void main(String[] args) {
-		Cliente venilton = new Cliente("Venilton");
+		Cliente joao = new Cliente("João");
+		Cliente maria = new Cliente("Maria");
 
-		Conta cc = new ContaCorrente(venilton);
-		Conta poupanca = new ContaPoupanca(venilton);
+		Banco banco = new Banco();
+		Conta ccj = new ContaCorrente(banco, joao, 500.00);
+		Conta cpj = new ContaPoupanca(banco, joao);
 
-		cc.depositar(null, 100);
-		cc.transferir(100, poupanca);
+		Conta ccm = new ContaCorrente(banco, maria, 1000.00);
 
-		cc.imprimirExtrato();
-		poupanca.imprimirExtrato();
+		cpj.abrirConta(0.0);
+		cpj.depositar(250.00); // cpj 250.00
+		cpj.transferir(100.50, ccm); // cpj 149.50 ccm 1100.50
+
+		ccj.depositar(250.00); // ccj 750.00
+		ccm.transferir(175.00, ccj); // ccm 925.50 ccj 925.00
+
+		ccj.imprimirExtrato();
+		cpj.imprimirExtrato();
+		ccm.imprimirExtrato();
+
+		System.out.println("\nSaldo Total no Banco: " + banco.getSaldoTotal());
 	}
 
 }

@@ -1,55 +1,77 @@
 package me.rogerioferreira.bancodigital.conta;
 
+import me.rogerioferreira.bancodigital.banco.Banco;
+import me.rogerioferreira.bancodigital.banco.TransacaoAberturaConta;
+import me.rogerioferreira.bancodigital.banco.TransacaoDeposito;
+import me.rogerioferreira.bancodigital.banco.TransacaoSaque;
+import me.rogerioferreira.bancodigital.banco.TransacaoTransferencia;
 import me.rogerioferreira.bancodigital.cliente.Cliente;
 
 public abstract class Conta implements IConta {
 
+	protected Cliente cliente;
+	protected Banco banco;
 	private static final int AGENCIA_PADRAO = 1;
 	private static int SEQUENCIAL = 1;
 
 	protected int agencia;
-	protected int numero;
-	protected double saldo;
-	protected Cliente cliente;
 
-	public Conta(Cliente cliente) {
+	protected String sequencialConta;
+
+	public Conta(Banco banco, Cliente cliente) {
+		var numero = SEQUENCIAL++;
+
+		this.banco = banco;
 		this.agencia = Conta.AGENCIA_PADRAO;
-		this.numero = SEQUENCIAL++;
 		this.cliente = cliente;
+		this.sequencialConta = String.valueOf(numero);
+
+		this.banco.adicionarConta(this);
+	}
+
+	public Conta(Banco banco, Cliente cliente, double saldoInicial) {
+		this(banco, cliente);
+
+		this.abrirConta(saldoInicial);
+	}
+
+	@Override
+	public void abrirConta(double saldoInicial) {
+		this.banco.adicionarTransacao(this, new TransacaoAberturaConta(saldoInicial));
 	}
 
 	@Override
 	public void sacar(double valor) {
-		saldo -= valor;
+		this.banco.adicionarTransacao(this, new TransacaoSaque(valor));
 	}
 
 	@Override
-	public void depositar(IConta origem, double valor) {
-		saldo += valor;
+	public void depositar(double valor) {
+		this.banco.adicionarTransacao(this, new TransacaoDeposito(valor));
 	}
 
 	@Override
 	public void transferir(double valor, IConta contaDestino) {
-		this.sacar(valor);
-		contaDestino.depositar(this, valor);
+		this.banco.adicionarTransacao(this, new TransacaoTransferencia(this, contaDestino, valor));
+	}
+
+	@Override
+	public String getSequencialConta() {
+		return this.sequencialConta;
 	}
 
 	public int getAgencia() {
 		return agencia;
 	}
 
-	public int getNumero() {
-		return numero;
-	}
-
 	public double getSaldo() {
-		return saldo;
+		return this.banco.getSaldoConta(this);
 	}
 
 	protected void imprimirInfosComuns() {
 		System.out.println(String.format("Titular: %s", this.cliente.nome()));
 		System.out.println(String.format("Agencia: %d", this.agencia));
-		System.out.println(String.format("Numero: %d", this.numero));
-		System.out.println(String.format("Saldo: %.2f", this.saldo));
+		System.out.println(String.format("Número da Conta: %s", this.sequencialConta));
+		System.out.println(String.format("Saldo: %.2f", this.getSaldo()));
 	}
 }

@@ -1,12 +1,15 @@
 package me.rogerioferreira.bancodigital.conta;
 
 public interface IConta {
+	void abrirConta(double saldoInicial);
 
 	void sacar(double valor);
 
-	void depositar(IConta origem, double valor);
+	void depositar(double valor);
 
 	void transferir(double valor, IConta contaDestino);
 
 	void imprimirExtrato();
+
+	String getSequencialConta();
 }
