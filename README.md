@@ -27,7 +27,7 @@ Capacidade de um objeto poder ser referenciado de várias formas, ou seja, é ca
 
 ## Diagrama de classes:
 
-![Diagrama de Classes](https://www.plantuml.com/plantuml/proxy?fmt=png&src=https://raw.github.com/rogersanctus/dio-java-lab-banco-digital/master/dia-class.puml)
+![Diagrama de Classes](https://www.plantuml.com/plantuml/proxy?fmt=svg&cache=no&src=https://raw.github.com/rogersanctus/dio-java-lab-banco-digital/master/dia-class.puml)
 
 ## Rodando o projeto:
 
