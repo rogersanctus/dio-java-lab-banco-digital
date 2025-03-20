@@ -1,0 +1,126 @@
+@startuml
+/'
+Diagrama de classes em PlantUML: https://plantuml.com/starting
+'/
+
+  interface IConta {
+    double getSaldo()
+    void abrirConta(double saldoInicial)
+    void sacar(double valor)
+    void depositar(double valor)
+    void transferir(double valor, IConta contaDestino)
+    void imprimirExtrato()
+    String getSequencialConta()
+  }
+
+  note left of IConta::getSaldo
+  Falta adicionar à interface
+  end note
+
+  note left of IConta::imprimirExtrato
+  Implementado em ContaCorrente
+  e ContaPoupança
+  end note
+
+  abstract class Conta {
+    # Banco banco
+    # Cliente cliente
+    # int agencia
+    # String sequencialConta
+
+    - {static} int AGENCIA_PADRAO = 1
+    - {static} int SEQUENCIAL = 1
+
+    + Conta(Banco banco, Cliente cliente)
+    + Conta(Banco banco, Cliente cliente, double saldoInicial)
+
+    + double getAgencia()
+    # void imprimirInfosComuns()
+  }
+
+  class ContaCorrente {
+
+  }
+
+  class ContaPoupanca {
+
+  }
+
+  enum TipoConta {
+    + POUPANCA
+    + CORRENTE
+  }
+
+  note left of TipoConta
+  Falta cirar esse tipo e delegar
+  a criação de contas para o Banco
+  end note
+
+  class Banco {
+    - String nome
+    - List<IConta> contas
+    - Map<ChaveTransacao, ITransacao> transacoes
+    - Map<String, Integer> sequencialTransacaoConta
+
+    + Banco(String nome)
+    - void abrirConta(TipoConta tipo, Cliente cliente) Conta
+    + double getSaldoConta(Conta conta) double
+    + void adicionarConta(IConta conta)
+    + void adicionarTransacao(IConta conta, ITransacao transacao)
+    + String getNome()
+    + List<IConta> getContas()
+    - List<ITransacao> getTransacoesConta(IConta conta)
+    - double computarTransacoes(IConta conta, List<ITransacao> transacoes)
+    + double getSaldoTotal()
+  }
+
+  note left of Banco::abrirConta
+  Por criar e implementar
+  <i>Tornar público</i>
+  end note
+
+  interface ITransacao {
+  }
+
+  class TransacaoAberturaConta {
+    + TransacaoAberturaConta(double saldoInicial)
+  }
+
+  class TransacaoSaque {
+    + TransacaoSaque(double valor)
+  }
+
+  class TransacaoDeposito {
+    + TransacaoDeposito(double valor)
+  }
+
+  class TransacaoTransferencia {
+    + TransacaoTransferencia(IConta de, IConta para, double valor)
+  }
+
+  class ChaveTransacao {
+    + OffsetDateTime dateTime
+    + String sequencialConta
+
+    + ChaveTransacao(OffsetDateTime dateTime, String sequencialConta)
+    + String sequencial()
+  }
+
+  IConta ..|> Conta: implementado por
+
+  Banco "1" ..o "*" IConta: possui
+  Banco .. TipoConta
+  Banco "1" ..o "*" ITransacao: possui
+  Banco .. ChaveTransacao
+
+  Conta <|-- ContaCorrente
+  Conta <|-- ContaPoupanca
+
+  ITransacao ..|> TransacaoAberturaConta
+  ITransacao ..|> TransacaoSaque
+  ITransacao ..|> TransacaoDeposito
+  ITransacao ..|> TransacaoTransferencia
+
+  Conta .. ITransacao: opera por
+
+@enduml
