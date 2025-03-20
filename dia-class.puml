@@ -3,28 +3,25 @@
 Diagrama de classes em PlantUML: https://plantuml.com/starting
 '/
 
-  interface IConta {
-    void abrirConta(double saldoInicial)
-    void sacar(double valor)
-    void depositar(double valor)
-    void transferir(double valor, IConta contaDestino)
-    double getSaldo()
-    Cliente getCliente()
-    String getSequencialConta()
-    int getAgencia()
-    void imprimirExtrato()
+package bancodigital {
+  interface conta.IConta {
+    + {abstract} void abrirConta(double saldoInicial)
+    + {abstract} void sacar(double valor)
+    + {abstract} void depositar(double valor)
+    + {abstract} void transferir(double valor, IConta contaDestino)
+    + {abstract} double getSaldo()
+    + {abstract} Cliente getCliente()
+    + {abstract} String getSequencialConta()
+    + {abstract} int getAgencia()
+    + {abstract} void imprimirExtrato()
   }
 
-  note left of IConta::getSaldo
-  Falta adicionar à interface
-  end note
-
-  note left of IConta::imprimirExtrato
+  note left of conta.IConta::imprimirExtrato
   Implementado em ContaCorrente
   e ContaPoupança
   end note
 
-  abstract class Conta {
+  abstract class conta.Conta {
     # Banco banco
     # Cliente cliente
     # int agencia
@@ -40,25 +37,20 @@ Diagrama de classes em PlantUML: https://plantuml.com/starting
     # void imprimirInfosComuns()
   }
 
-  class ContaCorrente {
+  class banco.ContaCorrente {
     ~ ContaCorrente(Banco banco, Cliente cliente)
   }
 
-  class ContaPoupanca {
+  class banco.ContaPoupanca {
     ~ ContaPoupanca(Banco banco, Cliente cliente)
   }
 
-  enum TipoConta {
+  enum conta.TipoConta {
     + POUPANCA
     + CORRENTE
   }
 
-  note left of TipoConta
-  Falta cirar esse tipo e delegar
-  a criação de contas para o Banco
-  end note
-
-  class Banco {
+  class banco.Banco {
     - String nome
     - List<IConta> contas
     - Map<ChaveTransacao, ITransacao> transacoes
@@ -79,31 +71,26 @@ Diagrama de classes em PlantUML: https://plantuml.com/starting
     - double computarTransacoes(IConta conta, Stream<ITransacao> transacoes)
   }
 
-  note left of Banco::abrirConta
-  Por criar e implementar
-  <i>Tornar público</i>
-  end note
-
-  interface ITransacao {
+  interface banco.ITransacao {
   }
 
-  class TransacaoAberturaConta {
+  class banco.TransacaoAberturaConta {
     + TransacaoAberturaConta(double saldoInicial)
   }
 
-  class TransacaoSaque {
+  class banco.TransacaoSaque {
     + TransacaoSaque(double valor)
   }
 
-  class TransacaoDeposito {
+  class banco.TransacaoDeposito {
     + TransacaoDeposito(double valor)
   }
 
-  class TransacaoTransferencia {
+  class banco.TransacaoTransferencia {
     + TransacaoTransferencia(IConta de, IConta para, double valor)
   }
 
-  class ChaveTransacao {
+  class banco.ChaveTransacao {
     + OffsetDateTime dateTime
     + String sequencialConta
 
@@ -111,21 +98,30 @@ Diagrama de classes em PlantUML: https://plantuml.com/starting
     + String sequencial()
   }
 
-  IConta ..|> Conta: implementado por
+  class cliente.Cliente {
+    + String nome
+  }
 
-  Banco "1" ..o "*" IConta: possui
-  Banco .. TipoConta
-  Banco "1" ..o "*" ITransacao: possui
-  Banco .. ChaveTransacao
+  conta.Conta ..|> conta.IConta: implementa
 
-  Conta <|-- ContaCorrente
-  Conta <|-- ContaPoupanca
+  banco.Banco "1" ..o "*" conta.IConta: possui
+  banco.Banco .. conta.TipoConta: cria conta por
+  banco.Banco "1" .right.o "*" banco.ITransacao: possui
+  banco.Banco .. banco.ChaveTransacao
+  banco.Banco .. cliente.Cliente
+  banco.Banco .. banco.ContaCorrente: abrirConta
+  banco.Banco .. banco.ContaPoupanca: abrirConta
 
-  ITransacao ..|> TransacaoAberturaConta
-  ITransacao ..|> TransacaoSaque
-  ITransacao ..|> TransacaoDeposito
-  ITransacao ..|> TransacaoTransferencia
+  banco.ContaPoupanca --|> conta.Conta: herda de
+  banco.ContaCorrente --|> conta.Conta: herda de
 
-  Conta .. ITransacao: opera por
+  conta.Conta *. cliente.Cliente
 
+  banco.TransacaoAberturaConta ..|> banco.ITransacao
+  banco.TransacaoSaque .down.|> banco.ITransacao
+  banco.TransacaoDeposito .down.|> banco.ITransacao
+  banco.TransacaoTransferencia .down.|> banco.ITransacao
+
+  conta.Conta ..> banco.ITransacao: opera por
+}
 @enduml
