@@ -115,7 +115,7 @@ package bancodigital {
   banco.ContaPoupanca --|> conta.Conta: herda de
   banco.ContaCorrente --|> conta.Conta: herda de
 
-  conta.Conta *. cliente.Cliente
+  conta.Conta "*" .* "1" cliente.Cliente: possui
 
   banco.TransacaoAberturaConta ..|> banco.ITransacao
   banco.TransacaoSaque .down.|> banco.ITransacao
