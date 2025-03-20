@@ -1,10 +1,13 @@
 package me.rogerioferreira.bancodigital.banco;
 
 import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.stream.Stream;
 import java.util.TreeMap;
 
 import me.rogerioferreira.bancodigital.cliente.Cliente;
@@ -75,7 +78,10 @@ public class Banco {
 	}
 
 	public void adicionarTransacao(IConta conta, ITransacao transacao) {
-		var transacoesConta = this.getTransacoesConta(conta);
+		var transacoesConta = this.getTransacoesConta(conta)
+				.map(entry -> entry.getValue())
+				.toList();
+
 		var dataHora = OffsetDateTime.now();
 
 		var chave = this.gerarChaveTransacao(dataHora, conta.getSequencialConta());
@@ -153,7 +159,7 @@ public class Banco {
 		}
 	}
 
-	private List<ITransacao> getTransacoesConta(IConta conta) {
+	private Stream<Entry<ChaveTransacao, ITransacao>> getTransacoesConta(IConta conta) {
 		return this.transacoes.entrySet()
 				.stream()
 				.filter(entry -> {
@@ -161,9 +167,7 @@ public class Banco {
 					var sequencialConta = key.sequencialConta().split(":")[1];
 
 					return sequencialConta.equals(conta.getSequencialConta());
-				})
-				.map(entry -> entry.getValue())
-				.toList();
+				});
 	}
 
 	private double computarTransacoes(IConta conta, List<ITransacao> transacoes) throws TransacaoException {
@@ -204,7 +208,10 @@ public class Banco {
 	}
 
 	public double getSaldoConta(IConta conta) throws TransacaoException {
-		var transacoes = this.getTransacoesConta(conta);
+		var transacoes = this.getTransacoesConta(conta)
+				.map(entry -> entry.getValue())
+				.toList();
+
 		return computarTransacoes(conta, transacoes);
 	}
 
@@ -213,6 +220,56 @@ public class Banco {
 				.stream()
 				.mapToDouble(conta -> getSaldoConta(conta))
 				.sum();
+	}
+
+	public void imprimirDetalhesExtratoConta(IConta conta) {
+		this.getTransacoesConta(conta)
+				.filter(entry -> {
+					var chave = entry.getKey();
+					var dataHora = chave.dataHora();
+					var dataHoraAtual = OffsetDateTime.now();
+
+					// Todas as transações de uma semana atrás até a data atual
+					return dataHora.isEqual(dataHoraAtual) || dataHora.isAfter(dataHoraAtual.minusWeeks(1));
+				})
+				.forEach(entry -> {
+					var dataHora = entry.getKey().dataHora();
+					var contaTransacao = entry.getKey().sequencialConta().split(":")[1];
+					var transacao = entry.getValue();
+					var dataHoraFormatada = dataHora.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"));
+
+					switch (transacao) {
+						case TransacaoAberturaConta aberturaConta -> {
+							System.out.println(
+									dataHoraFormatada + " - Abertura de Conta | valor de abertura: " + aberturaConta.valorAbertura());
+						}
+						case TransacaoDeposito deposito -> {
+							System.out.println(dataHoraFormatada + " - Depósito | valor: " + deposito.valor());
+						}
+						case TransacaoSaque saque -> {
+							System.out.println(dataHoraFormatada + " - Saque | valor: " + saque.valor());
+						}
+						case TransacaoTransferencia transferencia -> {
+							var de = transferencia.de();
+							var para = transferencia.para();
+							var deCliente = de.getCliente().nome();
+							var paraCliente = para.getCliente().nome();
+							var deConta = de.getSequencialConta();
+							var paraConta = para.getSequencialConta();
+
+							// Se quem criou a transação foi quem enviou ("de"), a transferência é "para" a
+							// outra parte.
+							// Caso contrário, a transferência é vinda "de" a outra parte
+							var detalheTransferencia = contaTransacao.equals(deConta) ? "para " + paraCliente + "(" + paraConta + ")"
+									: "de " + deCliente + "(" + deConta + ")";
+
+							System.out.println(dataHoraFormatada + " - Transferência \n\t| " + detalheTransferencia + "\n\t| valor: "
+									+ transferencia.valor());
+						}
+						default -> {
+						}
+					}
+				});
 	}
 
 	@Override

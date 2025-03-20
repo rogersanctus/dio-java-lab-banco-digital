@@ -48,6 +48,11 @@ public abstract class Conta implements IConta {
 	}
 
 	@Override
+	public Cliente getCliente() {
+		return this.cliente;
+	}
+
+	@Override
 	public String getSequencialConta() {
 		return this.sequencialConta;
 	}
@@ -67,5 +72,10 @@ public abstract class Conta implements IConta {
 		System.out.println(String.format("Agencia: %d", this.agencia));
 		System.out.println(String.format("Número da Conta: %s", this.sequencialConta));
 		System.out.println(String.format("Saldo: %.2f", this.getSaldo()));
+
+		this.banco.imprimirDetalhesExtratoConta(this);
+
+		System.out.println("=== Fim Extrato ===");
+		System.out.println();
 	}
 }

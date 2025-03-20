@@ -1,5 +1,7 @@
 package me.rogerioferreira.bancodigital.conta;
 
+import me.rogerioferreira.bancodigital.cliente.Cliente;
+
 public interface IConta {
 	void abrirConta(double saldoInicial);
 
@@ -12,6 +14,8 @@ public interface IConta {
 	double getSaldo();
 
 	void imprimirExtrato();
+
+	Cliente getCliente();
 
 	String getSequencialConta();
 
